@@ -10,11 +10,10 @@ import { LetterView } from './components/LetterView';
 import { FinalCard } from './components/FinalCard';
 import { StarlightSky } from './components/StarlightSky';
 import { PetalRain } from './components/PetalRain';
-import { LanguageDropdown } from './components/LanguageDropdown';
 import { CustomizeModal } from './components/CustomizeModal';
 
 export function App() {
-  const [locale, setLocale] = useState('vi');
+  const [locale] = useState('vi');
   const [stage, setStage] = useState<CardStage>('opening');
   const [selectedWishIdx, setSelectedWishIdx] = useState<number | null>(null);
 
@@ -172,7 +171,7 @@ export function App() {
     setCandleProgress(0);
     setCandleExtinguished(false);
     setSelectedWishIdx(null);
-    setStage('intro');
+    setStage('opening');
   };
 
   const showPetals = stage === 'heart' || stage === 'final';
@@ -197,7 +196,7 @@ export function App() {
       </button>
 
       {/* Customize Card Button */}
-      <button
+      {/* <button
         type="button"
         onClick={(e) => {
           e.stopPropagation();
@@ -207,17 +206,17 @@ export function App() {
       >
         <span>✨</span>
         <span>{content.ui.customizeBtn}</span>
-      </button>
+      </button> */}
 
       {/* Floating Petals on Heart & Final stages */}
       {showPetals && <PetalRain petals={images.petals} />}
 
       {/* Language Switcher */}
-      <LanguageDropdown
+      {/* <LanguageDropdown
         currentLocale={locale}
         onSelectLocale={setLocale}
         languageLabel={content.ui.languageLabel}
-      />
+      /> */}
 
       {/* Stage 1: Opening Reel */}
       {stage === 'opening' && (

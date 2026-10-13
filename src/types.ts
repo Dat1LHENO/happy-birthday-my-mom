@@ -2,6 +2,7 @@ export interface OpeningData {
   greeting: string;
   day: number;
   month: number;
+  label?: string;
 }
 
 export interface IntroData {

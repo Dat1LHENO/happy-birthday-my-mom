@@ -40,8 +40,9 @@ export const CONTENTS: Record<string, CardContent> = {
     receiverName: 'Mẹ yêu',
     opening: {
       greeting: 'Happy Birthday Mẹ',
-      day: 17,
+      day: 42,
       month: 7,
+      label: 'Tuổi',
     },
     intro: {
       line1: 'Có một món quà đặc biệt dành riêng cho Mẹ…',

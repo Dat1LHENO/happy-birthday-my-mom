@@ -200,7 +200,7 @@ export const CustomizeModal: React.FC<CustomizeModalProps> = ({
               <input
                 type="number"
                 min={1}
-                max={31}
+                max={120}
                 value={day}
                 onChange={(e) => setDay(Number(e.target.value))}
                 style={{

@@ -20,17 +20,27 @@ const TWINKLES = [
 ];
 
 export const OpeningReel: React.FC<OpeningReelProps> = ({ data, ui, onDone }) => {
-  const { greeting, day, month } = data;
+  const { greeting, day, month, label } = data;
   const [fadingOut, setFadingOut] = useState(false);
 
-  const monthIdx = Math.min(11, Math.max(0, month - 1));
-  const monthName = ui.months[monthIdx] ?? `Tháng ${month}`;
-  const maxDays = DAYS_IN_MONTH[monthIdx];
+  const targetNumber = day || 42;
+  const isAge = targetNumber > 31;
+  const monthIdx = month ? Math.min(11, Math.max(0, month - 1)) : -1;
+
+  let labelText = label;
+  if (labelText === undefined) {
+    if (isAge) {
+      labelText = 'Tuổi';
+    } else if (monthIdx >= 0) {
+      labelText = ui.months[monthIdx] ?? `Tháng ${month}`;
+    } else {
+      labelText = '';
+    }
+  }
 
   useEffect(() => {
-    const isReduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-    const fadeTimer = window.setTimeout(() => setFadingOut(true), isReduced ? 2200 : 4500);
-    const doneTimer = window.setTimeout(onDone, isReduced ? 2800 : 5200);
+    const fadeTimer = window.setTimeout(() => setFadingOut(true), 5500);
+    const doneTimer = window.setTimeout(onDone, 6200);
 
     return () => {
       window.clearTimeout(fadeTimer);
@@ -38,9 +48,14 @@ export const OpeningReel: React.FC<OpeningReelProps> = ({ data, ui, onDone }) =>
     };
   }, [onDone]);
 
-  // Generate 23 numbers where index 18 lands on `day`
+  // Generate 23 numbers where index 18 lands exactly on `targetNumber`
   const numbers = Array.from({ length: 23 }, (_, t) => {
-    return (((day - 1 + (t - 18)) % maxDays + maxDays) % maxDays) + 1;
+    if (isAge) {
+      // Linear sequence around targetNumber: e.g. for 42 -> 24..46
+      return Math.max(1, targetNumber - 18 + t);
+    }
+    const maxDays = monthIdx >= 0 ? DAYS_IN_MONTH[monthIdx] : 31;
+    return (((targetNumber - 1 + (t - 18)) % maxDays + maxDays) % maxDays) + 1;
   });
 
   return (
@@ -119,6 +134,7 @@ export const OpeningReel: React.FC<OpeningReelProps> = ({ data, ui, onDone }) =>
       <div
         className="relative z-10"
         style={{
+          position: 'relative',
           height: 304,
           width: 'min(360px, 92vw)',
           WebkitMaskImage:
@@ -129,9 +145,13 @@ export const OpeningReel: React.FC<OpeningReelProps> = ({ data, ui, onDone }) =>
       >
         {/* Spinning number strip */}
         <div
-          className="lovegift-reel absolute left-0 top-0 w-full"
+          className="lovegift-reel"
           style={
             {
+              position: 'absolute',
+              left: 0,
+              top: 0,
+              width: '100%',
               '--reel-from': `${REEL_FROM}px`,
               '--reel-to': `${REEL_TO}px`,
             } as React.CSSProperties
@@ -140,11 +160,11 @@ export const OpeningReel: React.FC<OpeningReelProps> = ({ data, ui, onDone }) =>
           {numbers.map((num, i) => (
             <div
               key={i}
-              className="flex items-center justify-center font-serif font-semibold text-cream"
+              className="font-serif font-semibold text-cream"
               style={{
                 height: 76,
                 fontSize: 'clamp(38px, 11vw, 60px)',
-                opacity: i === 18 ? 0 : 0.8,
+                opacity: i === 18 ? 0 : 0.85,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -157,24 +177,35 @@ export const OpeningReel: React.FC<OpeningReelProps> = ({ data, ui, onDone }) =>
 
         {/* Revealed target date in center */}
         <div
-          className="absolute left-1/2 top-1/2 z-20 flex w-max items-center justify-center gap-3"
           style={{
+            position: 'absolute',
+            left: '50%',
+            top: '50%',
             transform: 'translate(-50%, -50%)',
+            zIndex: 25,
             display: 'flex',
+            width: 'max-content',
             alignItems: 'center',
+            justifyContent: 'center',
             gap: '12px',
+            pointerEvents: 'none',
           }}
         >
           {/* Radial glow */}
           <span
             aria-hidden="true"
-            className="lovegift-reveal-glow absolute left-1/2 top-1/2 -z-10 rounded-full"
+            className="lovegift-reveal-glow"
             style={{
+              position: 'absolute',
+              left: '50%',
+              top: '50%',
+              transform: 'translate(-50%, -50%)',
               width: 230,
               height: 230,
               borderRadius: '50%',
               background:
-                'radial-gradient(circle, rgba(255,206,120,0.5) 0%, rgba(255,180,80,0.18) 42%, rgba(255,180,80,0) 70%)',
+                'radial-gradient(circle, rgba(255,206,120,0.55) 0%, rgba(255,180,80,0.2) 42%, rgba(255,180,80,0) 70%)',
+              zIndex: -1,
             }}
           />
           <span
@@ -189,22 +220,24 @@ export const OpeningReel: React.FC<OpeningReelProps> = ({ data, ui, onDone }) =>
               fontSize: 'clamp(72px, 22vw, 128px)',
               lineHeight: 1,
               color: '#f4d68a',
-              textShadow: '0 0 30px rgba(255,206,120,0.6)',
+              textShadow: '0 0 35px rgba(255,206,120,0.7)',
             }}
           >
-            {day}
+            {targetNumber}
           </span>
-          <span
-            className="lovegift-month-in font-serif text-cream"
-            style={{
-              fontSize: 'clamp(20px, 6vw, 34px)',
-              alignSelf: 'flex-end',
-              whiteSpace: 'nowrap',
-              paddingBottom: '8px',
-            }}
-          >
-            {monthName}
-          </span>
+          {labelText ? (
+            <span
+              className="lovegift-month-in font-serif text-cream"
+              style={{
+                fontSize: 'clamp(20px, 6vw, 34px)',
+                alignSelf: 'flex-end',
+                whiteSpace: 'nowrap',
+                paddingBottom: '8px',
+              }}
+            >
+              {labelText}
+            </span>
+          ) : null}
         </div>
       </div>
     </section>

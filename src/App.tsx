@@ -182,7 +182,7 @@ export function App() {
       onPointerDown={handleStartAudio}
     >
       {/* Background Audio */}
-      <audio ref={audioRef} src="/music/birthday.mp3" loop preload="auto" />
+      <audio ref={audioRef} src="/music/music.mp3" loop preload="auto" />
 
       {/* Audio Mute/Unmute Toggle Button */}
       <button
